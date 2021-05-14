@@ -25,8 +25,17 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname + "./public/index.html"));
 });
 
+//creates new exercises
+app.post('/api/exercises',(req,res)=>{
+  db.Exercises.create(req.body).then(newExercise=>{
+      res.json(newExercise)
+  }).catch(err=>{
+      res.status(500).json(err);
+  })
+})
+
 //gets all exercises
-app.get("/exercises", (req, res) => {
+app.get("/api/exercises", (req, res) => {
   db.Exercises.find({})
     .then((dbExercises) => {
       res.json(dbExercises);
@@ -36,46 +45,32 @@ app.get("/exercises", (req, res) => {
     });
 });
 
-//gets all users
-app.get("/user", (req, res) => {
-  db.User.find({})
-    .then((dbUser) => {
-      res.json(dbUser);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+//creates new workout
+app.post('/api/workouts',(req,res)=>{
+  db.Workouts.create(req.body).then(newWorkout=>{
+      res.json(newWorkout)
+  }).catch(err=>{
+      res.status(500).json(err);
+  })
+})
 
-app.get("/workouts", (req, res) => {
-  db.User.findOne(
-    {
-    //   _id: mongojs.ObjectId(req.params.id),
-    },
-    (error, data) => {
-      if (error) {
-        res.send(error);
-      } else {
-        res.send(data);
-      }
-    }
-  );
-});
+app.get("/api/workouts",(req,res)=>{
+  db.Workouts.find().then(allWorkouts=>{
+      res.json(allWorkouts)
+  }).catch(err=>{
+      res.status(500).json(err);
+  })
+})
 
-//creates new exercises
-app.post("/exercises", ({ body }, res) => {
-  db.Exercises.create(body)
-    .then(({ _id }) =>
-      db.User.findOneAndUpdate({}, { $push: { exercises: _id } }, { new: true })
-    )
-    .then((dbUser) => {
-      console.log(dbUser);
-      res.json(dbUser);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
+//add exercises to workout
+app.put("/api/workouts/addexercise/:workoutid/:exerciseid",(req,res)=>{
+  console.log(req.params)
+  db.Workouts.findOneAndUpdate({_id:req.params.workoutid},{$push:{exercises:req.params.exerciseid}},{new:true}).then(updatedOrder=>{
+      res.json(updatedOrder)
+  }).catch(err=>{
+      res.status(500).json(err);
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}!`);
