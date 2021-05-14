@@ -62,14 +62,20 @@ app.get("/api/workouts",(req,res)=>{
   })
 })
 
-//add exercises to workout
-app.put("/api/workouts/addexercise/:workoutid/:exerciseid",(req,res)=>{
-  console.log(req.params)
-  db.Workouts.findOneAndUpdate({_id:req.params.workoutid},{$push:{exercises:req.params.exerciseid}},{new:true}).then(updatedOrder=>{
-      res.json(updatedOrder)
-  }).catch(err=>{
-      res.status(500).json(err);
-  })
+app.put("/api/workouts/:id",(req,res)=>{
+  console.log(req.body)
+  db.Exercises.create(req.body)
+  .then((data) => db.Work.findOneAndUpdate(
+    {_id: req.params.id},
+    { $push: {exercises: data._id }},
+    { new: true })
+)
+.then(dbWorkout => {
+    res.json(dbWorkout)
+})
+.catch(err => {
+    res.json(err)
+})
 })
 
 app.listen(PORT, () => {

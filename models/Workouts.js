@@ -6,7 +6,6 @@ const WorkoutsSchema = new Schema({
   userName: {
     type: String,
   },
-
   exercises: [
     {
       type: Schema.Types.ObjectId,
