@@ -47,7 +47,8 @@ app.get("/api/exercises", (req, res) => {
 
 //creates new workout
 app.post('/api/workouts',(req,res)=>{
-  db.Workouts.create(req.body).then(newWorkout=>{
+  console.log(req.body)
+  db.Workouts.create({date: Date.now()}).then(newWorkout=>{
       res.json(newWorkout)
   }).catch(err=>{
       res.status(500).json(err);
@@ -55,7 +56,7 @@ app.post('/api/workouts',(req,res)=>{
 })
 
 app.get("/api/workouts",(req,res)=>{
-  db.Workouts.find().then(allWorkouts=>{
+  db.Workouts.find().populate("exercises").then(allWorkouts=>{
       res.json(allWorkouts)
   }).catch(err=>{
       res.status(500).json(err);
@@ -65,9 +66,9 @@ app.get("/api/workouts",(req,res)=>{
 app.put("/api/workouts/:id",(req,res)=>{
   console.log(req.body)
   db.Exercises.create(req.body)
-  .then((data) => db.Work.findOneAndUpdate(
+  .then((newExercise) => db.Workouts.findOneAndUpdate(
     {_id: req.params.id},
-    { $push: {exercises: data._id }},
+    { $push: {exercises: newExercise._id }},
     { new: true })
 )
 .then(dbWorkout => {
@@ -76,6 +77,17 @@ app.put("/api/workouts/:id",(req,res)=>{
 .catch(err => {
     res.json(err)
 })
+})
+
+app.get("/api/workouts/range", (req, res) => {
+  db.Workouts.find({})
+  .populate("exercises")
+  .then(dbWorkout => {
+      res.json(dbWorkout);
+  })
+  .catch(err => {
+      res.json(err)
+  })
 })
 
 app.listen(PORT, () => {
