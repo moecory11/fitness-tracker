@@ -1,18 +1,13 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-
+const path = require("path");
 const PORT = process.env.PORT || 3000;
-
 const db = require("./models");
-
 const app = express();
-
 app.use(logger("dev"));
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(express.static("public"));
 
 mongoose.connect(
@@ -20,30 +15,15 @@ mongoose.connect(
   { useNewUrlParser: true }
 );
 
-//renders homepage/dashboard
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname + "./public/index.html"));
+  res.sendFile(path.join(__dirname + "/public/index.html"));
 });
-
-//creates new exercises
-app.post('/api/exercises',(req,res)=>{
-  db.Exercises.create(req.body).then(newExercise=>{
-      res.json(newExercise)
-  }).catch(err=>{
-      res.status(500).json(err);
-  })
-})
-
-//gets all exercises
-app.get("/api/exercises", (req, res) => {
-  db.Exercises.find({})
-    .then((dbExercises) => {
-      res.json(dbExercises);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
+app.get("/exercise", (req, res) => {
+  res.sendFile(path.join(__dirname + "/public/exercise.html"));
 });
+app.get("/stats", (req, res) => {
+  res.sendFile(path.join(__dirname + "/public/stats.html"));
+}); 
 
 //creates new workout
 app.post('/api/workouts',(req,res)=>{
